@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TrustLink Check – AI-Powered Scam Detector</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#060810;--surface:#0d1117;--card:#111827;--card2:#0f1623;
+  --border:#1a2235;--text:#e2e8f4;--muted:#5a6a88;
+  --green:#00e676;--red:#ff3d5a;--yellow:#ffd60a;--blue:#38bdf8;
+  --purple:#a855f7;--orange:#fb923c;--cyan:#22d3ee;--pink:#f472b6;
+  --g1:linear-gradient(135deg,#38bdf8,#22d3ee);
+  --g2:linear-gradient(135deg,#ff3d5a,#fb923c);
+  --g3:linear-gradient(135deg,#a855f7,#38bdf8);
+  --g4:linear-gradient(135deg,#ffd60a,#fb923c);
+  --g5:linear-gradient(135deg,#00e676,#22d3ee);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#1e2d45;border-radius:3px}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;height:64px;
+  background:rgba(6,8,16,.9);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;
+  background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo em{font-style:normal;-webkit-text-fill-color:var(--yellow)}
+.nav-links{display:flex;gap:1.8rem;list-style:none}
+.nav-links a{color:var(--muted);font-size:.875rem;font-weight:500;text-decoration:none;transition:.2s}
+.nav-links a:hover{color:var(--text)}
+.nav-btn{
+  background:var(--g2);color:#fff;font-weight:700;font-size:.82rem;
+  padding:.42rem 1.1rem;border-radius:50px;text-decoration:none;
+  transition:opacity .2s,transform .15s;
+}
+.nav-btn:hover{opacity:.85;transform:translateY(-1px)}
+.ham{display:none;background:none;border:none;color:var(--text);font-size:1.3rem;cursor:pointer}
+
+/* HERO */
+.hero{
+  min-height:100vh;padding:90px 5vw 60px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;position:relative;overflow:hidden;
+}
+.hero-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 30%,rgba(56,189,248,.07),transparent),
+    radial-gradient(ellipse 60% 60% at 85% 70%,rgba(168,85,247,.08),transparent),
+    radial-gradient(ellipse 50% 40% at 50% 90%,rgba(34,211,238,.06),transparent);
+}
+/* animated grid */
+.grid-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(56,189,248,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(56,189,248,.04) 1px,transparent 1px);
+  background-size:50px 50px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
+}
+.badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);
+  color:var(--blue);padding:.3rem .9rem;border-radius:50px;
+  font-size:.78rem;font-weight:600;margin-bottom:1.4rem;
+  animation:fadeUp .6s ease both;
+}
+.pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);
+  animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 6px var(--green)}50%{opacity:.3;box-shadow:none}}
+
+.hero h1{
+  font-family:'Syne',sans-serif;font-size:clamp(2.2rem,5.5vw,4.2rem);font-weight:800;
+  line-height:1.1;margin-bottom:1rem;animation:fadeUp .7s ease .08s both;
+}
+.hero h1 .hi{background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{
+  font-size:1.05rem;color:var(--muted);max-width:520px;line-height:1.75;
+  margin-bottom:2.5rem;animation:fadeUp .8s ease .16s both;
+}
+
+/* CHECKER CARD */
+.checker{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:22px;padding:2.2rem;max-width:660px;width:100%;
+  box-shadow:0 24px 80px rgba(0,0,0,.5);
+  animation:fadeUp .9s ease .24s both;position:relative;z-index:1;
+}
+.checker-head{
+  display:flex;align-items:center;gap:.7rem;margin-bottom:1.2rem;
+}
+.checker-head h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700}
+.ai-badge{
+  background:var(--g3);color:#fff;font-size:.65rem;font-weight:700;
+  padding:.18rem .6rem;border-radius:50px;margin-left:auto;
+}
+.url-row{display:flex;gap:.6rem}
+.url-in{
+  flex:1;background:var(--surface);border:1.5px solid var(--border);
+  color:var(--text);padding:.78rem 1rem;border-radius:13px;
+  font-size:.93rem;font-family:'DM Sans',sans-serif;outline:none;transition:.25s;
+}
+.url-in:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(56,189,248,.1)}
+.url-in::placeholder{color:var(--muted)}
+.go-btn{
+  background:var(--g1);color:#000;font-weight:700;
+  padding:.78rem 1.3rem;border-radius:13px;border:none;
+  cursor:pointer;font-size:.93rem;white-space:nowrap;
+  transition:opacity .2s,transform .15s;min-width:120px;
+  display:flex;align-items:center;justify-content:center;gap:.4rem;
+}
+.go-btn:hover{opacity:.88;transform:translateY(-1px)}
+.go-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* LOADING */
+.loading{
+  display:none;align-items:center;gap:1rem;
+  margin-top:1.2rem;padding:1rem;background:rgba(56,189,248,.06);
+  border:1px solid rgba(56,189,248,.15);border-radius:13px;
+}
+.spin{
+  width:28px;height:28px;border:3px solid var(--border);
+  border-top-color:var(--blue);border-radius:50%;
+  animation:spin .7s linear infinite;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{font-size:.88rem;color:var(--blue);font-weight:500}
+.loading small{display:block;color:var(--muted);font-size:.78rem;margin-top:.15rem}
+
+/* RESULT */
+.result{display:none;margin-top:1.2rem;border-radius:13px;overflow:hidden}
+.result-header{
+  display:flex;align-items:center;gap:.8rem;padding:1rem 1.2rem;
+}
+.result-icon{font-size:1.8rem}
+.result-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem}
+.result-sub{font-size:.82rem;margin-top:.15rem;opacity:.8}
+.result.safe .result-header{background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.25);border-bottom:none}
+.result.risky .result-header{background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.25);border-bottom:none}
+.result.warn .result-header{background:rgba(255,214,10,.1);border:1px solid rgba(255,214,10,.25);border-bottom:none}
+.result.safe .result-title{color:var(--green)}
+.result.risky .result-title{color:var(--red)}
+.result.warn .result-title{color:var(--yellow)}
+
+.result-body{
+  padding:1rem 1.2rem;font-size:.86rem;line-height:1.7;color:var(--text);
+  background:var(--surface);border:1px solid var(--border);border-top:none;
+  border-radius:0 0 13px 13px;
+}
+.result-body .checks{display:flex;flex-direction:column;gap:.45rem;margin-top:.6rem}
+.chk{display:flex;align-items:flex-start;gap:.5rem;font-size:.84rem}
+.chk-icon{flex-shrink:0;margin-top:.1rem}
+
+/* DISCLAIMER */
+.disclaimer{
+  margin-top:.8rem;padding:.7rem 1rem;
+  background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.2);
+  border-radius:10px;font-size:.78rem;color:var(--muted);line-height:1.5;
+}
+
+/* SECTIONS */
+section{padding:86px 5vw}
+.sec-label{
+  font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;
+  letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);
+  margin-bottom:.5rem;
+}
+.sec-title{
+  font-family:'Syne',sans-serif;font-size:clamp(1.7rem,3.2vw,2.4rem);
+  font-weight:800;line-height:1.2;margin-bottom:.7rem;
+}
+.sec-sub{color:var(--muted);font-size:.97rem;max-width:500px;line-height:1.7;margin-bottom:2.4rem}
+
+/* TIPS */
+#tips{background:var(--surface)}
+.tips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.1rem}
+.tip{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:16px;padding:1.4rem;
+  position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;
+}
+.tip::after{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:var(--tg)}
+.tip:hover{transform:translateY(-4px);box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.tip-em{font-size:1.9rem;margin-bottom:.7rem}
+.tip h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.4rem}
+.tip p{color:var(--muted);font-size:.83rem;line-height:1.6}
+.chip{
+  display:inline-block;font-size:.68rem;font-weight:700;
+  padding:.18rem .55rem;border-radius:50px;margin-top:.6rem;
+  background:var(--cb);color:var(--cc);
+}
+
+/* STATS */
+.stats-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--border);border:1px solid var(--border);
+}
+.stat{
+  background:var(--card);padding:2rem 1.5rem;text-align:center;
+}
+.stat-num{
+  font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;
+  background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.stat p{color:var(--muted);font-size:.82rem;margin-top:.3rem}
+
+/* REPORT */
+.rf{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:2.2rem;max-width:700px;
+}
+.fg{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.9rem}
+.fg label{font-size:.82rem;font-weight:600;color:var(--muted)}
+.fg input,.fg textarea,.fg select{
+  background:var(--surface);border:1.5px solid var(--border);
+  color:var(--text);padding:.68rem .95rem;border-radius:11px;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:.2s;
+}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--blue)}
+.fg textarea{resize:vertical;min-height:88px}
+.fg select option{background:var(--surface)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.sbtn{
+  background:var(--g2);color:#fff;font-weight:700;
+  padding:.75rem 1.8rem;border-radius:12px;border:none;
+  cursor:pointer;font-size:.9rem;transition:opacity .2s,transform .15s;
+}
+.sbtn:hover{opacity:.88;transform:translateY(-1px)}
+.ok{
+  display:none;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.25);
+  color:var(--green);padding:.9rem 1rem;border-radius:11px;
+  margin-top:.9rem;font-size:.88rem;font-weight:500;
+}
+
+/* ALERTS */
+#alerts{background:var(--surface)}
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1.1rem}
+.ac{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:16px;padding:1.4rem;
+  border-left:3px solid var(--ac);transition:transform .2s;
+}
+.ac:hover{transform:translateY(-3px)}
+.ac-meta{display:flex;align-items:center;gap:.4rem;font-size:.73rem;color:var(--muted);margin-bottom:.55rem}
+.ac-dot{width:7px;height:7px;border-radius:50%;background:var(--ac);flex-shrink:0}
+.ac h3{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:.4rem}
+.ac p{color:var(--muted);font-size:.83rem;line-height:1.6}
+.sev{display:inline-block;font-size:.68rem;font-weight:700;padding:.18rem .58rem;border-radius:50px;margin-top:.65rem}
+.sev.h{background:rgba(255,61,90,.12);color:var(--red)}
+.sev.m{background:rgba(255,214,10,.12);color:var(--yellow)}
+.sev.l{background:rgba(56,189,248,.12);color:var(--blue)}
+
+/* CONTACT */
+.cw{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+.ci{display:flex;gap:.9rem;align-items:flex-start;margin-bottom:1.4rem}
+.ci-ic{
+  width:42px;height:42px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;
+}
+.ci h4{font-weight:600;font-size:.92rem;margin-bottom:.18rem}
+.ci p{color:var(--muted);font-size:.83rem;line-height:1.5}
+.cf{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:2rem}
+.cf h3{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:1.3rem}
+
+/* FOOTER */
+footer{
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:2rem 5vw;display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:1rem;
+}
+footer p{color:var(--muted);font-size:.82rem}
+.fl{display:flex;gap:1.5rem}
+.fl a{color:var(--muted);font-size:.82rem;text-decoration:none;transition:.2s}
+.fl a:hover{color:var(--text)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:780px){
+  .nav-links,.nav-btn{display:none}
+  .ham{display:block}
+  .r2,.cw,.stats-row{grid-template-columns:1fr}
+  .url-row{flex-direction:column}
+  footer{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">TrustLink<em>✓</em>Check</div>
+  <ul class="nav-links">
+    <li><a href="#checker">Check URL</a></li>
+    <li><a href="#tips">Safety Tips</a></li>
+    <li><a href="#report">Report</a></li>
+    <li><a href="#alerts">Alerts</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#report" class="nav-btn">🚨 Report Scam</a>
+  <button class="ham" onclick="toggleMenu()">☰</button>
+</nav>
+
+<!-- HERO / CHECKER -->
+<section class="hero" id="checker">
+  <div class="grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="badge"><span class="pulse"></span>AI-Powered Protection • India Focused</div>
+  <h1>Detect Fake &amp; Scam<br><span class="hi">Websites Instantly</span></h1>
+  <p>Our AI analyses every URL deeply — domain age signals, phishing patterns, brand spoofing, unsafe TLDs, redirect chains and more.</p>
+
+  <div class="checker">
+    <div class="checker-head">
+      <span style="font-size:1.3rem">🔍</span>
+      <h2>Paste any suspicious link below</h2>
+      <span class="ai-badge">✦ AI Analysis</span>
+    </div>
+    <div class="url-row">
+      <input class="url-in" id="urlIn" type="text" placeholder="e.g. https://amaz0n-cashback.xyz/offer"/>
+      <button class="go-btn" id="goBtn" onclick="runCheck()">
+        <span id="btnTxt">Analyse</span> 🔎
+      </button>
+    </div>
+
+    <!-- loading -->
+    <div class="loading" id="loading">
+      <div class="spin"></div>
+      <div>
+        <p id="loadMsg">Connecting to AI analysis engine…</p>
+        <small>Checking domain reputation, patterns &amp; threat signals</small>
+      </div>
+    </div>
+
+    <!-- result -->
+    <div class="result" id="result">
+      <div class="result-header">
+        <span class="result-icon" id="rIcon"></span>
+        <div>
+          <div class="result-title" id="rTitle"></div>
+          <div class="result-sub" id="rSub"></div>
+        </div>
+      </div>
+      <div class="result-body">
+        <div id="rBody"></div>
+        <div class="checks" id="rChecks"></div>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      ⚠️ <strong>Note:</strong> AI analysis checks patterns, domain signals &amp; known fraud indicators. For absolute certainty on critical transactions, also check <strong>cybercrime.gov.in</strong> or call <strong>1930</strong>.
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stat"><div class="stat-num" id="s1">0</div><p>Scam Sites Flagged</p></div>
+  <div class="stat"><div class="stat-num" id="s2">0</div><p>URLs Analysed</p></div>
+  <div class="stat"><div class="stat-num" id="s3">0</div><p>Indians Protected</p></div>
+  <div class="stat"><div class="stat-num">24/7</div><p>Live Monitoring</p></div>
+</div>
+
+<!-- SAFETY TIPS -->
+<section id="tips">
+  <div class="sec-label">Learn &amp; Protect Yourself</div>
+  <h2 class="sec-title">Essential Safety Tips</h2>
+  <p class="sec-sub">Simple steps to protect your money and identity from online fraud in India.</p>
+  <div class="tips-grid">
+    <div class="tip" style="--tg:linear-gradient(90deg,#38bdf8,#22d3ee)">
+      <div class="tip-em">🔗</div>
+      <h3>Check the URL Carefully</h3>
+      <p>Scammers copy brand names with slight changes: <strong>amaz0n</strong>, <strong>flipkarrt</strong>, <strong>paytm-offer.xyz</strong>. Always read the full domain before clicking.</p>
+      <span class="chip" style="--cb:rgba(56,189,248,.12);--cc:#38bdf8">URL Safety</span>
+    </div>
+    <div class="tip" style="--tg:linear-gradient(90deg,#00e676,#22d3ee)">
+      <div class="tip-em">🔒</div>
+      <h3>HTTPS Is Not Enough</h3>
+      <p>HTTPS only means data is encrypted — it does NOT mean the site is safe. Scam sites can also have HTTPS. Always check the domain name too.</p>
+      <span class="chip" style="--cb:rgba(0,230,118,.12);--cc:#00e676">Encryption</span>
+    </div>
+    <div class="tip" style="--tg:linear-gradient(90deg,#ff3d5a,#fb923c)">
+      <div class="tip-em">🚫</div>
+      <h3>Never Share OTP / CVV / PIN</h3>
+      <p>No real bank, government, or company will EVER ask for these. Anyone asking — on call, SMS, or chat — is a scammer.</p>
+      <span class="chip" style="--cb:rgba(255,61,90,.12);--cc:#ff3d5a">Critical Rule</span>
+    </div>
+    <div class="tip" style="--tg:linear-gradient(90deg,#ffd60a,#fb923c)">
+      <div class="tip-em">📲</div>
+      <h3>UPI Collect = You Pay</h3>
+      <p>Scammers send a "collect" request disguised as a payment. Approving it deducts money FROM you. Never approve UPI requests from strangers.</p>
+      <span class="chip" style="--cb:rgba(255,214,10,.12);--cc:#ffd60a">UPI Fraud</span>
+    </div>
+    <div class="tip" style="--tg:linear-gradient(90deg,#a855f7,#38bdf8)">
+      <div class="tip-em">🛒</div>
+      <h3>Fake Shopping Websites</h3>
+      <p>Unbelievably low prices, no return policy, no physical address — red flags. Always use verified platforms: Amazon, Flipkart, Myntra, Meesho.</p>
+      <span class="chip" style="--cb:rgba(168,85,247,.12);--cc:#a855f7">Shopping</span>
+    </div>
+    <div class="tip" style="--tg:linear-gradient(90deg,#22d3ee,#38bdf8)">
+      <div class="tip-em">📧</div>
+      <h3>Phishing SMS &amp; Email</h3>
+      <p>Don't click links in unexpected messages. Open your browser and type the official website address directly instead of clicking.</p>
+      <span class="chip" style="--cb:rgba(34,211,238,.12);--cc:#22d3ee">Phishing</span>
+    </div>
+    <div class="tip" style="--tg:linear-gradient(90deg,#fb923c,#ffd60a)">
+      <div class="tip-em">📞</div>
+      <h3>Fake Customer Care Numbers</h3>
+      <p>Top Google results for "bank customer care" can be fake numbers. Only trust numbers printed on your debit/credit card or the bank's official app.</p>
+      <span class="chip" style="--cb:rgba(251,146,60,.12);--cc:#fb923c">Phone Fraud</span>
+    </div>
+    <div class="tip" style="--tg:linear-gradient(90deg,#f472b6,#a855f7)">
+      <div class="tip-em">🏦</div>
+      <h3>Enable Bank Alerts</h3>
+      <p>Turn on SMS/push notifications for every transaction. A few seconds of awareness can prevent large losses — report suspicious charges immediately.</p>
+      <span class="chip" style="--cb:rgba(244,114,182,.12);--cc:#f472b6">Banking</span>
+    </div>
+  </div>
+</section>
+
+<!-- REPORT -->
+<section id="report">
+  <div class="sec-label">Community Protection</div>
+  <h2 class="sec-title">Report a Scam Website</h2>
+  <p class="sec-sub">Help protect others by submitting suspicious sites. Every report strengthens our database.</p>
+  <div class="rf">
+    <div class="r2">
+      <div class="fg"><label>🌐 Suspicious URL *</label><input id="rUrl" placeholder="https://fake-site.xyz"/></div>
+      <div class="fg"><label>⚠️ Scam Type *</label>
+        <select id="rType">
+          <option value="">Select type…</option>
+          <option>Fake Shopping Website</option>
+          <option>UPI / Payment Fraud</option>
+          <option>Phishing (Fake Login Page)</option>
+          <option>Lottery / Prize Scam</option>
+          <option>Fake Job Offer</option>
+          <option>Fake Bank / Finance Site</option>
+          <option>Investment / Crypto Scam</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label>👤 Your Name (optional)</label><input id="rName" placeholder="Anonymous"/></div>
+      <div class="fg"><label>📞 Phone / Email (optional)</label><input id="rCon" placeholder="For follow-up only"/></div>
+    </div>
+    <div class="fg"><label>📝 What Happened? *</label>
+      <textarea id="rDesc" placeholder="Describe how you found this site, what it asked for, and whether you lost money…"></textarea>
+    </div>
+    <div class="fg"><label>📅 Date of Incident</label><input type="date" id="rDate"/></div>
+    <button class="sbtn" onclick="submitReport()">🚨 Submit Report</button>
+    <div class="ok" id="repOk">✅ Report submitted! We'll review and add it to our warning database within 12 hours.</div>
+  </div>
+</section>
+
+<!-- ALERTS -->
+<section id="alerts">
+  <div class="sec-label">Stay Updated</div>
+  <h2 class="sec-title">Latest Scam Alerts</h2>
+  <p class="sec-sub">Current fraud trends in India and worldwide. Updated regularly by our team.</p>
+  <div class="ag">
+    <div class="ac" style="--ac:#ff3d5a"><div class="ac-meta"><div class="ac-dot"></div>India · May 2025</div>
+      <h3>Fake IPL Ticket Websites</h3>
+      <p>Fraudulent sites offering discounted match tickets steal payment details. Buy only from official BCCI or BookMyShow portals.</p>
+      <span class="sev h">🔴 High Risk</span></div>
+    <div class="ac" style="--ac:#ff3d5a"><div class="ac-meta"><div class="ac-dot"></div>India · Apr 2025</div>
+      <h3>Aadhaar Update Phishing SMS</h3>
+      <p>SMS messages asking you to click a link to "update Aadhaar" or lose mobile service. UIDAI never sends such messages — delete immediately.</p>
+      <span class="sev h">🔴 High Risk</span></div>
+    <div class="ac" style="--ac:#ffd60a"><div class="ac-meta"><div class="ac-dot"></div>India · Apr 2025</div>
+      <h3>Electricity Bill Disconnection Scam</h3>
+      <p>WhatsApp messages about power disconnection with a fake helpline. Calling leads to AnyDesk remote access fraud and account takeover.</p>
+      <span class="sev m">🟡 Medium Risk</span></div>
+    <div class="ac" style="--ac:#ffd60a"><div class="ac-meta"><div class="ac-dot"></div>Global · Mar 2025</div>
+      <h3>AI Voice Cloning Calls</h3>
+      <p>Scammers clone voices of relatives using AI and call victims claiming emergencies. Verify by calling back on a known saved number.</p>
+      <span class="sev m">🟡 Medium Risk</span></div>
+    <div class="ac" style="--ac:#ff3d5a"><div class="ac-meta"><div class="ac-dot"></div>India · Mar 2025</div>
+      <h3>Fake WhatsApp Part-Time Jobs</h3>
+      <p>Groups offering ₹500–₹2000 per task for "liking videos." After small initial payments, victims are asked to invest larger amounts and cheated.</p>
+      <span class="sev h">🔴 High Risk</span></div>
+    <div class="ac" style="--ac:#38bdf8"><div class="ac-meta"><div class="ac-dot"></div>India · Feb 2025</div>
+      <h3>Fake Amazon/Flipkart Refund Calls</h3>
+      <p>Callers pretend to be customer care offering refunds, then request screen sharing to steal banking credentials. Always call official numbers only.</p>
+      <span class="sev l">🔵 Awareness</span></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="sec-label">We're Here to Help</div>
+  <h2 class="sec-title">Contact Support</h2>
+  <p class="sec-sub">Questions, urgent reports, or just need advice — reach us any time.</p>
+  <div class="cw">
+    <div>
+      <div class="ci"><div class="ci-ic" style="background:rgba(56,189,248,.12)">📧</div>
+        <div><h4>Email Us</h4><p>support@trustlinkcheck.in<br>Reply within 24 hours</p></div></div>
+      <div class="ci"><div class="ci-ic" style="background:rgba(0,230,118,.12)">📞</div>
+        <div><h4>Cybercrime Helpline (India)</h4>
+          <p><strong style="color:var(--green);font-size:1.05rem">Dial 1930</strong><br>24/7 for urgent fraud cases</p></div></div>
+      <div class="ci"><div class="ci-ic" style="background:rgba(255,61,90,.12)">🌐</div>
+        <div><h4>Official Portals</h4>
+          <p>cybercrime.gov.in — File complaint<br>rbi.org.in — Banking fraud</p></div></div>
+      <div class="ci"><div class="ci-ic" style="background:rgba(168,85,247,.12)">⏱️</div>
+        <div><h4>Response Times</h4><p>Reports reviewed within 12 hrs<br>Urgent cases escalated immediately</p></div></div>
+    </div>
+    <div class="cf">
+      <h3>Send a Message</h3>
+      <div class="fg"><label>Your Name</label><input id="cName" placeholder="Full name"/></div>
+      <div class="fg"><label>Email</label><input type="email" id="cEmail" placeholder="your@email.com"/></div>
+      <div class="fg"><label>Subject</label>
+        <select id="cSub">
+          <option>I need help with a scam</option>
+          <option>Report a suspicious site</option>
+          <option>General question</option>
+          <option>Partnership / Media</option>
+        </select></div>
+      <div class="fg"><label>Message</label><textarea id="cMsg" placeholder="Describe your issue…"></textarea></div>
+      <button class="sbtn" style="background:var(--g3)" onclick="submitContact()">Send Message ✉️</button>
+      <div class="ok" id="conOk">✅ Message sent! We'll reply within 24 hours.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <div class="logo" style="font-size:1.1rem;margin-bottom:.2rem">TrustLink<em>✓</em>Check</div>
+    <p>© 2025 TrustLinkCheck — Protecting India's internet, one link at a time.</p>
+  </div>
+  <div class="fl">
+    <a href="#checker">Check URL</a><a href="#tips">Safety Tips</a>
+    <a href="#report">Report</a><a href="#alerts">Alerts</a><a href="#contact">Contact</a>
+  </div>
+  <p>Emergency: <strong style="color:var(--green)">1930</strong></p>
+</footer>
+
+<script>
+const loadMsgs = [
+  "Connecting to site safety scanner…",
+  "Scanning domain reputation & patterns…",
+  "Checking phishing signals & login traps…",
+  "Reviewing brand impersonation clues…",
+  "Finalising risk verdict…"
+];
+
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+
+async function runCheck(){
+  const raw = document.getElementById('urlIn').value.trim();
+  if(!raw){ alert('Please enter a URL first.'); return; }
+
+  const btn = document.getElementById('goBtn');
+  const loading = document.getElementById('loading');
+  const result = document.getElementById('result');
+  const loadMsg = document.getElementById('loadMsg');
+
+  btn.disabled = true;
+  result.style.display = 'none';
+  loading.style.display = 'flex';
+  loadMsg.textContent = loadMsgs[0];
+
+  let mi = 0;
+  const msgTimer = setInterval(()=>{
+    mi = (mi + 1) % loadMsgs.length;
+    loadMsg.textContent = loadMsgs[mi];
+  }, 1400);
+
+  await sleep(700);
+  clearInterval(msgTimer);
+
+  const analysis = evaluateUrl(raw);
+  showResult(analysis);
+
+  loading.style.display = 'none';
+  btn.disabled = false;
+}
+
+function evaluateUrl(raw){
+  let url = raw;
+  if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  const checks = [];
+  let score = 0;
+  let parsed;
+
+  try {
+    parsed = new URL(url);
+  } catch (e) {
+    return {
+      verdict:'CAUTION',
+      title:'Invalid URL',
+      subtitle:'Please enter a valid website address.',
+      risk_score:6,
+      summary:'The text entered could not be parsed as a valid URL. Use a full address like https://example.com.',
+      checks:[{status:'fail',label:'URL Format',detail:'The field does not contain a valid URL.'}],
+      advice:'Enter a complete website address before analysing it.'
+    };
+  }
+
+  const host = parsed.hostname.toLowerCase();
+  const path = parsed.pathname + parsed.search;
+  const tld = host.split('.').pop();
+  const suspiciousTlds = ['xyz','tk','ml','ga','cf','gq','pw','top','click','loan','win','space'];
+  const brandTargets = ['amazon','flipkart','paytm','ola','uber','whatsapp','google','rbi','uidai','aadhaar','hdfc','icici','axis'];
+
+  if(parsed.protocol !== 'https:'){
+    score += 3;
+    checks.push({status:'fail',label:'HTTPS Encryption',detail:'Not using HTTPS. The connection may not be secure.'});
+  } else {
+    checks.push({status:'pass',label:'HTTPS Encryption',detail:'Encrypted HTTPS is present.'});
+  }
+
+  if(suspiciousTlds.includes(tld)){
+    score += 3;
+    checks.push({status:'fail',label:'Suspicious Extension',detail:`.${tld} is often abused by scam websites.`});
+  } else {
+    checks.push({status:'pass',label:'Domain Extension',detail:'The domain extension appears normal.'});
+  }
+
+  const hyphenCount = (host.match(/-/g) || []).length;
+  if(hyphenCount >= 2){
+    score += 2;
+    checks.push({status:'fail',label:'Domain Hyphens',detail:'Multiple hyphens are present, which is common in fake URLs.'});
+  } else if(hyphenCount === 1){
+    score += 1;
+    checks.push({status:'warn',label:'Single Hyphen',detail:'A hyphen is present. Inspect the domain carefully.'});
+  } else {
+    checks.push({status:'pass',label:'Domain Structure',detail:'No suspicious hyphens were detected.'});
+  }
+
+  if(/^\d+\.\d+\.\d+\.\d+$/.test(host)){
+    score += 4;
+    checks.push({status:'fail',label:'IP Address Host',detail:'The URL uses a raw IP address instead of a regular domain.'});
+  } else {
+    checks.push({status:'pass',label:'Host Type',detail:'A normal domain name is used.'});
+  }
+
+  const suspiciousPath = /(login|signin|verify|otp|secure|confirm|update|bank|account|pay|aadhaar|kyc|refund|invoice|support)/i;
+  if(suspiciousPath.test(path)){
+    score += 2;
+    checks.push({status:'warn',label:'Suspicious Path',detail:'The path contains keywords often used by phishing and scam pages.'});
+  } else {
+    checks.push({status:'pass',label:'URL Path',detail:'No common phishing keywords were found in the path.'});
+  }
+
+  const fakeHosting = /(000webhostapp|github\.io|netlify\.app|blogspot\.com|bit\.ly|tinyurl\.com|t\.me)/i;
+  if(fakeHosting.test(url)){
+    score += 1;
+    checks.push({status:'warn',label:'Temporary Hosting Pattern',detail:'The URL includes a host or shortener pattern often used for suspicious pages.'});
+  } else {
+    checks.push({status:'pass',label:'Hosting Pattern',detail:'The host does not match common temporary or suspicious patterns.'});
+  }
+
+  const brandMatch = brandTargets.filter(b=>host.includes(b));
+  if(brandMatch.length && !/amazon\.in|flipkart\.com|paytm\.com|rbi\.org\.in|uidai\.gov\.in/.test(host)){
+    score += 2;
+    checks.push({status:'warn',label:'Brand Impersonation',detail:`The domain contains ${brandMatch.join(', ')} and may be trying to impersonate a trusted brand.`});
+  } else {
+    checks.push({status:'pass',label:'Brand Signals',detail:'No strong brand impersonation patterns were detected.'});
+  }
+
+  const failCount = checks.filter(c => c.status === 'fail').length;
+  const warnCount = checks.filter(c => c.status === 'warn').length;
+  const riskScore = Math.min(score, 10);
+  let verdict = 'SAFE';
+  let title = 'Looks Reasonable';
+  let subtitle = 'No strong scam indicators were found.';
+  let summary = 'The URL appears structurally normal, but always confirm exactly who controls the domain before sharing sensitive details.';
+  let advice = 'Do not share OTP, PIN, or CVV with anyone, and verify the site through official channels if unsure.';
+
+  if (riskScore >= 8 || failCount >= 2 || (failCount >= 1 && riskScore >= 5)) {
+    verdict = 'RISKY';
+    title = 'High Scam Risk';
+    subtitle = 'The URL shows multiple suspicious signals.';
+    summary = 'This link contains many warning signs common in scams and phishing pages. Avoid entering any personal or financial information.';
+    advice = 'Do not use this URL and report it to cybercrime.gov.in if you suspect fraud.';
+  } else if (riskScore >= 5 || failCount >= 1 || warnCount >= 2) {
+    verdict = 'CAUTION';
+    title = 'Use Caution';
+    subtitle = 'Some suspicious signs were detected.';
+    summary = 'The URL may be risky. Treat it carefully and verify the destination before proceeding.';
+    advice = 'Double-check the domain and do not provide sensitive information until you are sure it is legitimate.';
+  }
+
+  return {verdict, title, subtitle, risk_score: riskScore, summary, checks, advice};
+}
+
+function showResult(d){
+  const result = document.getElementById('result');
+  const rIcon = document.getElementById('rIcon');
+  const rTitle = document.getElementById('rTitle');
+  const rSub = document.getElementById('rSub');
+  const rBody = document.getElementById('rBody');
+  const rChecks = document.getElementById('rChecks');
+
+  result.className = 'result ' + (d.verdict === 'SAFE' ? 'safe' : d.verdict === 'RISKY' ? 'risky' : 'warn');
+  rIcon.textContent = d.verdict === 'SAFE' ? '✅' : d.verdict === 'RISKY' ? '🚨' : '⚠️';
+  rTitle.textContent = d.title;
+  rSub.textContent = `Risk Score: ${d.risk_score}/10 • ${d.subtitle}`;
+  rBody.innerHTML = `<p style="margin-bottom:.5rem">${d.summary}</p><p style="font-size:.82rem;color:var(--${d.verdict==='SAFE'?'green':d.verdict==='RISKY'?'red':'yellow'})"><strong>Action:</strong> ${d.advice}</p>`;
+
+  rChecks.innerHTML = '';
+  if(d.checks && d.checks.length){
+    rChecks.innerHTML = '<div style="font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:1px">Detailed Checks</div>';
+    d.checks.forEach(c=>{
+      const icon = c.status === 'pass' ? '✅' : c.status === 'fail' ? '❌' : '⚠️';
+      rChecks.innerHTML += `<div class="chk"><span class="chk-icon">${icon}</span><div><strong>${c.label}</strong> — ${c.detail}</div></div>`;
+    });
+  }
+
+  result.style.display = 'block';
+  result.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+document.getElementById('urlIn').addEventListener('keydown',e=>{if(e.key==='Enter')runCheck()});
+
+// ── FORMS ──
+function submitReport(){
+  const url=document.getElementById('rUrl').value.trim();
+  const type=document.getElementById('rType').value;
+  const desc=document.getElementById('rDesc').value.trim();
+  if(!url||!type||!desc){alert('Please fill all required fields.');return;}
+  document.getElementById('repOk').style.display='block';
+  ['rUrl','rName','rCon','rDesc','rDate'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('rType').value='';
+  setTimeout(()=>document.getElementById('repOk').style.display='none',7000);
+}
+function submitContact(){
+  const n=document.getElementById('cName').value.trim();
+  const e=document.getElementById('cEmail').value.trim();
+  const m=document.getElementById('cMsg').value.trim();
+  if(!n||!e||!m){alert('Please fill your name, email and message.');return;}
+  document.getElementById('conOk').style.display='block';
+  ['cName','cEmail','cMsg'].forEach(id=>document.getElementById(id).value='');
+  setTimeout(()=>document.getElementById('conOk').style.display='none',7000);
+}
+
+// ── COUNTERS ──
+function animCount(el,target,suffix){
+  let c=0;const step=Math.ceil(target/70);
+  const t=setInterval(()=>{c=Math.min(c+step,target);el.textContent=c.toLocaleString('en-IN')+suffix;if(c>=target)clearInterval(t);},20);
+}
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      animCount(document.getElementById('s1'),12480,'+');
+      animCount(document.getElementById('s2'),98230,'+');
+      animCount(document.getElementById('s3'),45000,'+');
+      obs.disconnect();
+    }
+  });
+},{threshold:.4});
+obs.observe(document.querySelector('.stats-row'));
+
+// ── MOBILE MENU ──
+function toggleMenu(){
+  const nl=document.querySelector('.nav-links');
+  const nb=document.querySelector('.nav-btn');
+  const open=nl.style.display==='flex';
+  if(open){nl.style.display='none';nb.style.display='none';return;}
+  Object.assign(nl.style,{display:'flex',flexDirection:'column',position:'fixed',
+    top:'64px',left:'0',right:'0',background:'rgba(6,8,16,.97)',
+    padding:'1.2rem 5vw 1.8rem',borderBottom:'1px solid #1a2235',gap:'1.1rem',zIndex:'199'});
+  Object.assign(nb.style,{display:'block',position:'fixed',bottom:'1.5rem',
+    right:'1.5rem',zIndex:'199'});
+  nl.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+    nl.style.display='none';nb.style.display='none';
+  },{once:true}));
+}
+</script>
+</body>
+</html>
