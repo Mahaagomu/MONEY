@@ -68,16 +68,56 @@ const shortenerHosts = new Set([
 
 function localRiskReason(parsed) {
   const host = parsed.hostname.toLowerCase();
-  if (host.startsWith('xn--') || host.includes('.xn--')) {
-    return 'The domain uses an internationalized/punycode name. Verify the exact domain before paying.';
+
+  // Reserved domains used for testing, not public websites
+  if (
+    host === "test" ||
+    host.endsWith(".test") ||
+    host === "example" ||
+    host.endsWith(".example") ||
+    host === "invalid" ||
+    host.endsWith(".invalid")
+  ) {
+    return "NOT VERIFIED: Reserved testing domain. "
+      + "This is not a verified public website. Do not pay.";
   }
-  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.startsWith('[')) {
-    return 'The link uses an IP address instead of a normal domain. Do not pay until independently verified.';
+
+  // Detect internationalized/punycode domains
+  if (host.startsWith("xn--") || host.includes(".xn--")) {
+    return "Warning: Verify this internationalized domain carefully before paying.";
   }
+
+  // Detect IP-address links
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host) ||
+      host.startsWith("[")) {
+    return "Warning: This link uses an IP address instead of a normal domain. Verify it independently.";
+  }
+
+  // Detect common shortened links
   if (shortenerHosts.has(host)) {
-    return 'This is a shortened link that hides the destination. Do not pay through it until the final domain is verified.';
+    return "Warning: This shortened link hides its destination. Verify the final website before paying.";
   }
-  return '';
+
+  // Look for combinations of payment/brand terms and
+  // suspicious action terms in the hostname
+  const words = host.replace(/[^a-z0-9]+/g, " ");
+
+  const brandOrPayment =
+    /\b(sbi|hdfc|icici|axis|amazon|flipkart|paytm|phonepe|gpay|upi|bank|wallet|courier|delivery)\b/i;
+
+  const suspiciousAction =
+    /\b(kyc|update|verify|verification|refund|claim|winner|prize|gift|bonus|fee|urgent|blocked|suspend|unlock|free)\b/i;
+
+  if (
+    brandOrPayment.test(words) &&
+    suspiciousAction.test(words)
+  ) {
+    return "DANGEROUS WARNING: The domain combines "
+      + "brand/payment terms with suspicious action terms. "
+      + "Verify through the official website before paying.";
+  }
+
+  return "";
 }
 
 async function checkWithGoogleSafeBrowsing(url) {
