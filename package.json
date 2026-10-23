@@ -1,0 +1,13 @@
+{
+  "name": "trust-link-check-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Public backend API for Trust Link Check student hardware prototype",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

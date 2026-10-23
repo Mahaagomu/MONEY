@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: trust-link-check-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_ORIGINS
+        value: https://mahaagomu.github.io
+      - key: SAFE_BROWSING_API_KEY
+        sync: false
+      - key: DEVICE_KEY
+        sync: false
