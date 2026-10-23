@@ -109,13 +109,20 @@ async function checkWithGoogleSafeBrowsing(url) {
       })
     });
     if (!response.ok) {
-      // Fail closed: a failed security lookup is not proof that a link is safe.
-      return {
-        status: 'DANGEROUS',
-        reason: `Security lookup service returned HTTP ${response.status}; the link could not be verified. Do not pay.`,
-        verification: 'unavailable'
-      };
-    }
+  const errorBody = await response.text();
+
+  console.error(
+    "Safe Browsing API error:",
+    response.status,
+    errorBody
+  );
+
+  return {
+    status: "DANGEROUS",
+    reason: `Security lookup failed with HTTP ${response.status}. Link not verified; do not pay.`,
+    verification: "unavailable"
+  };
+}
     const data = await response.json();
     if (Array.isArray(data.matches) && data.matches.length > 0) {
       const threats = [...new Set(data.matches.map(m => m.threatType).filter(Boolean))].join(', ');
